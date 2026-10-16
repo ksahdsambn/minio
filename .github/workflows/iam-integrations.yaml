@@ -17,7 +17,7 @@ permissions:
 jobs:
   iam-matrix-test:
     name: "[Go=${{ matrix.go-version }}|ldap=${{ matrix.ldap }}|etcd=${{ matrix.etcd }}|openid=${{ matrix.openid }}]"
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64, dartnode-linux, dartnode-build, dartnode-exclusive]
 
     services:
       openldap:
@@ -86,8 +86,8 @@ jobs:
           _MINIO_ETCD_TEST_SERVER: ${{ matrix.etcd }}
           _MINIO_OPENID_TEST_SERVER: ${{ matrix.openid }}
         run: |
-          sudo sysctl net.ipv6.conf.all.disable_ipv6=0
-          sudo sysctl net.ipv6.conf.default.disable_ipv6=0
+          test "$(sysctl -n net.ipv6.conf.all.disable_ipv6)" = 0
+          test "$(sysctl -n net.ipv6.conf.default.disable_ipv6)" = 0
           make test-iam
       - name: Test with multiple OpenID providers
         if: matrix.openid == 'http://127.0.0.1:5556/dex'
@@ -97,8 +97,8 @@ jobs:
           _MINIO_OPENID_TEST_SERVER: ${{ matrix.openid }}
           _MINIO_OPENID_TEST_SERVER_2: "http://127.0.0.1:5557/dex"
         run: |
-          sudo sysctl net.ipv6.conf.all.disable_ipv6=0
-          sudo sysctl net.ipv6.conf.default.disable_ipv6=0
+          test "$(sysctl -n net.ipv6.conf.all.disable_ipv6)" = 0
+          test "$(sysctl -n net.ipv6.conf.default.disable_ipv6)" = 0
           make test-iam
       - name: Test with Access Management Plugin enabled
         env:
@@ -107,8 +107,8 @@ jobs:
           _MINIO_OPENID_TEST_SERVER: ${{ matrix.openid }}
           _MINIO_POLICY_PLUGIN_TEST_ENDPOINT: "http://127.0.0.1:8080"
         run: |
-          sudo sysctl net.ipv6.conf.all.disable_ipv6=0
-          sudo sysctl net.ipv6.conf.default.disable_ipv6=0
+          test "$(sysctl -n net.ipv6.conf.all.disable_ipv6)" = 0
+          test "$(sysctl -n net.ipv6.conf.default.disable_ipv6)" = 0
           go run docs/iam/access-manager-plugin.go &
           make test-iam
       - name: Test MinIO Old Version data to IAM import current version
@@ -125,9 +125,10 @@ jobs:
         if: matrix.openid == 'http://127.0.0.1:5556/dex'
         run: |
           make test-site-replication-oidc
+    if: ${{ ((github.event_name != 'pull_request' && github.event_name != 'pull_request_target') || github.event.pull_request.head.repo.full_name == github.repository) }}
   iam-import-with-missing-entities:
     name: Test IAM import in new cluster with missing entities
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64, dartnode-linux, dartnode-build]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -142,9 +143,10 @@ jobs:
       - name: Test import of IAM artifacts when in fresh cluster there are missing groups etc
         run: |
           make test-iam-import-with-missing-entities
+    if: ${{ ((github.event_name != 'pull_request' && github.event_name != 'pull_request_target') || github.event.pull_request.head.repo.full_name == github.repository) }}
   iam-import-with-openid:
     name: Test IAM import in new cluster with opendid configurations
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64, dartnode-linux, dartnode-build]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -159,3 +161,4 @@ jobs:
       - name: Test import of IAM artifacts when in fresh cluster with openid configurations
         run: |
           make test-iam-import-with-openid
+    if: ${{ ((github.event_name != 'pull_request' && github.event_name != 'pull_request_target') || github.event.pull_request.head.repo.full_name == github.repository) }}

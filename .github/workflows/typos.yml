@@ -1,15 +1,15 @@
----
 name: Spelling
 on: [pull_request]
 
 jobs:
   run:
     name: Spell Check with Typos
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64, dartnode-linux, dartnode-build]
     steps:
-    - name: Checkout Actions Repository
-      uses: actions/checkout@v4
+      - name: Checkout Actions Repository
+        uses: actions/checkout@v4
 
-    - name: Check spelling of repo
-      uses: crate-ci/typos@master
+      - name: Check spelling of repo
+        uses: crate-ci/typos@master
 
+    if: ${{ ((github.event_name != 'pull_request' && github.event_name != 'pull_request_target') || github.event.pull_request.head.repo.full_name == github.repository) }}

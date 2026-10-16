@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   action:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64, dartnode-linux, dartnode-build]
     steps:
       - uses: dessant/lock-threads@v3
         with:
@@ -22,3 +22,4 @@ jobs:
           exclude-any-issue-labels: 'do-not-close'
           issue-lock-reason: 'resolved'
           log-output: true
+    if: ${{ ((github.event_name != 'pull_request' && github.event_name != 'pull_request_target') || github.event.pull_request.head.repo.full_name == github.repository) }}

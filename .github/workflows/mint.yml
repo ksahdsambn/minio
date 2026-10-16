@@ -16,12 +16,12 @@ permissions:
 
 jobs:
   mint-test:
-    runs-on: mint
+    runs-on: [self-hosted, Linux, X64, dartnode-linux, dartnode-build]
     timeout-minutes: 120
     steps:
       - name: cleanup #https://github.com/actions/checkout/issues/273
         run: |
-          sudo -S rm -rf ${GITHUB_WORKSPACE}
+          rm -rf -- "${GITHUB_WORKSPACE:?}"
           mkdir ${GITHUB_WORKSPACE}
       - name: checkout-step
         uses: actions/checkout@v4
@@ -79,3 +79,4 @@ jobs:
           docker system prune -f || true
           docker volume prune -f || true
           docker volume rm $(docker volume ls -q -f dangling=true) || true
+    if: ${{ ((github.event_name != 'pull_request' && github.event_name != 'pull_request_target') || github.event.pull_request.head.repo.full_name == github.repository) }}

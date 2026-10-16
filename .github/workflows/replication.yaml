@@ -17,7 +17,7 @@ permissions:
 jobs:
   replication-test:
     name: Advanced Tests with Go ${{ matrix.go-version }}
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64, dartnode-linux, dartnode-build]
 
     strategy:
       matrix:
@@ -31,49 +31,50 @@ jobs:
           check-latest: true
       - name: Test Decom
         run: |
-          sudo sysctl net.ipv6.conf.all.disable_ipv6=0
-          sudo sysctl net.ipv6.conf.default.disable_ipv6=0
+          test "$(sysctl -n net.ipv6.conf.all.disable_ipv6)" = 0
+          test "$(sysctl -n net.ipv6.conf.default.disable_ipv6)" = 0
           make test-decom
 
       - name: Test ILM
         run: |
-          sudo sysctl net.ipv6.conf.all.disable_ipv6=0
-          sudo sysctl net.ipv6.conf.default.disable_ipv6=0
+          test "$(sysctl -n net.ipv6.conf.all.disable_ipv6)" = 0
+          test "$(sysctl -n net.ipv6.conf.default.disable_ipv6)" = 0
           make test-ilm
           make test-ilm-transition
 
       - name: Test PBAC
         run: |
-          sudo sysctl net.ipv6.conf.all.disable_ipv6=0
-          sudo sysctl net.ipv6.conf.default.disable_ipv6=0
+          test "$(sysctl -n net.ipv6.conf.all.disable_ipv6)" = 0
+          test "$(sysctl -n net.ipv6.conf.default.disable_ipv6)" = 0
           make test-pbac
 
       - name: Test Config File
         run: |
-          sudo sysctl net.ipv6.conf.all.disable_ipv6=0
-          sudo sysctl net.ipv6.conf.default.disable_ipv6=0
+          test "$(sysctl -n net.ipv6.conf.all.disable_ipv6)" = 0
+          test "$(sysctl -n net.ipv6.conf.default.disable_ipv6)" = 0
           make test-configfile
 
       - name: Test Replication
         run: |
-          sudo sysctl net.ipv6.conf.all.disable_ipv6=0
-          sudo sysctl net.ipv6.conf.default.disable_ipv6=0
+          test "$(sysctl -n net.ipv6.conf.all.disable_ipv6)" = 0
+          test "$(sysctl -n net.ipv6.conf.default.disable_ipv6)" = 0
           make test-replication
 
       - name: Test MinIO IDP for automatic site replication
         run: |
-          sudo sysctl net.ipv6.conf.all.disable_ipv6=0
-          sudo sysctl net.ipv6.conf.default.disable_ipv6=0
+          test "$(sysctl -n net.ipv6.conf.all.disable_ipv6)" = 0
+          test "$(sysctl -n net.ipv6.conf.default.disable_ipv6)" = 0
           make test-site-replication-minio
 
       - name: Test Versioning
         run: |
-          sudo sysctl net.ipv6.conf.all.disable_ipv6=0
-          sudo sysctl net.ipv6.conf.default.disable_ipv6=0
+          test "$(sysctl -n net.ipv6.conf.all.disable_ipv6)" = 0
+          test "$(sysctl -n net.ipv6.conf.default.disable_ipv6)" = 0
           make test-versioning
 
       - name: Test Multipart upload with failures
         run: |
-          sudo sysctl net.ipv6.conf.all.disable_ipv6=0
-          sudo sysctl net.ipv6.conf.default.disable_ipv6=0
+          test "$(sysctl -n net.ipv6.conf.all.disable_ipv6)" = 0
+          test "$(sysctl -n net.ipv6.conf.default.disable_ipv6)" = 0
           make test-multipart
+    if: ${{ ((github.event_name != 'pull_request' && github.event_name != 'pull_request_target') || github.event.pull_request.head.repo.full_name == github.repository) }}

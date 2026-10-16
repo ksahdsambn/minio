@@ -7,11 +7,11 @@ on:
 
 permissions:
   contents: read
-    
+
 jobs:
   build:
     name: runner / shfmt
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, Linux, X64, dartnode-linux, dartnode-build]
     steps:
       - uses: actions/checkout@v4
       - uses: luizm/action-sh-checker@master
@@ -20,3 +20,4 @@ jobs:
           SHFMT_OPTS: "-s"
         with:
           sh_checker_shellcheck_disable: true # disable for now
+    if: ${{ ((github.event_name != 'pull_request' && github.event_name != 'pull_request_target') || github.event.pull_request.head.repo.full_name == github.repository) }}
